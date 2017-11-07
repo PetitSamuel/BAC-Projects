@@ -1,0 +1,160 @@
+
+void main() {
+    //Declaration des images
+
+    String image1 = "justputinred.jpg";
+    String image2 = "fleur2.jpg";
+    String image3 = "obama.jpg";
+
+    //charge l'image et demande de lancer les différents effets
+
+    load(image1);
+    if (readBoolean("Commencer l'effet 1?")) {
+        effet1();
+    }
+    load(image2);
+    if (readBoolean("Colorier les fleurs?")) {
+        effet2();
+    }
+    load(image3);
+    if (readBoolean("Souhaitez vous...mettre des filtres sur Obama?")) {
+        effet3();
+    }
+}
+
+
+
+
+//contient les commandes pour réaliser l'effet n°1
+void effet1() {
+    //augmente progressivement la valeur de a
+
+    for (int luminosite = 0; luminosite <= 25; luminosite++) {
+        sleep(50);
+        //boucles qui contiennent tout les pixels de la photo		
+
+        for (int hauteur = -getHeight(); hauteur <= getHeight(); hauteur++)
+            for (int largeur = -getWidth(); largeur <= getWidth(); largeur++) {
+
+                //récupère la valeur du pixel et la remplace par la même en ajoutant la variable luminosite pour chaque pixel			
+
+                int tableauPixel = getPixel(largeur, hauteur);
+                setPixel(largeur, hauteur, tableauPixel + luminosite);
+            }
+    }
+}
+
+
+
+
+// contient les commandes de l'effet n°2
+void effet2() {
+
+    //déclaration des variables
+
+    int numeroPixel = 0;
+    int tabRecoloration[][] = new int[getHeight() * getWidth() * 5][3];
+
+    //boucles allant du bas gauche vers la droite de l'image
+    // pour chaque pixel en largeur, une seconde boucle fait le même travail pour la hauteur 	
+
+    for (int imgWidth = -getWidth(); imgWidth <= getWidth() + 30; imgWidth++) {
+        sleep(15);
+        for (int imgHeight = -getHeight(); imgHeight <= getHeight(); imgHeight++) {
+
+            //remplissage des 2 tableaux (1er pour le passage au bleu, 2nd pour la recoloration)
+
+            int savedPixelCol[] = getPixelColor(imgWidth, imgHeight);
+            for (int j = 0; j < 3; j++) {
+                tabRecoloration[numeroPixel][j] = savedPixelCol[j];
+            }
+
+            //changement de la couleur et numéro du pixel+1
+
+            numeroPixel = numeroPixel + 1;
+            setPixel(imgWidth, imgHeight, savedPixelCol[2], savedPixelCol[1], savedPixelCol[0]);
+
+            //boucle commence à partir de 30 pixels de large		
+
+            if (imgWidth >= 30 - getWidth()) {
+                //recolorie avec les couleurs originales récupérées dans le tableau de tableau		
+                //8971 est la première valeur de numeroPixel qui passe par cette boucle, pour la tester utiliser cette commande:
+                //println(numeroPixel);
+
+                setPixel(imgWidth - 30, imgHeight, tabRecoloration[numeroPixel - 8971][0], tabRecoloration[numeroPixel - 8971][1], tabRecoloration[numeroPixel - 8971][2]);
+            }
+        }
+    }
+		sleep(300);
+}
+
+
+
+
+//contient les commandes pour l'effet n°3
+void effet3() {
+
+
+    //Déclaration des variables
+
+    int numPixel = 0;
+    int tabrecoloration[][] = new int[getHeight() * getWidth() * 5][3];
+
+    //récupère les valeurs de chaque pixel et les sauvergarde dans le tableau tabrecoloration
+
+    for (int imgWidth = -getWidth(); imgWidth <= getWidth() + 30; imgWidth++) {
+        for (int imgHeight = -getHeight(); imgHeight <= getHeight(); imgHeight++) {
+
+            int savedPixelCol[] = getPixelColor(imgWidth, imgHeight);
+            for (int j = 0; j < 3; j++) {
+                tabrecoloration[numPixel][j] = savedPixelCol[j];
+            }
+            numPixel = numPixel + 1;
+        }
+    }
+    //génère 50 carrés	un par un
+
+    for (int VarNbCarre = 0; VarNbCarre <= 50; VarNbCarre++) {
+
+        //la position des carrés se trouvent entre la largeur et la hauteur - la taille des carrés
+
+        int posAle = random(-getWidth() + 25, getWidth() - 25);
+        int posAle2 = random(-getHeight() + 25, getHeight() - 25);
+
+        //génère 3 nombres au hasard qui feront varier la couleur des filtres
+
+        int tabRandom[] = new int[3];
+        tabRandom[0] = random(1, 5);
+        tabRandom[1] = random(1, 5);
+        tabRandom[2] = random(1, 5);
+      
+        //génère un carré de hauteur et de largeur 50	
+
+        for (int abscisse = -25; abscisse < 25; abscisse++) {
+            sleep(2);
+            for (int ordonne = -25; ordonne < 25; ordonne++) {
+
+                //change la couleur de chaque pixel du carré en fonction des nombres générés au hasard
+
+                int Tabpix[] = getPixelColor(abscisse + posAle, ordonne + posAle2);
+                setPixel(abscisse + posAle, ordonne + posAle2, Tabpix[0] / tabRandom[0], Tabpix[1] / tabRandom[1], Tabpix[2] / tabRandom[2]);
+            }
+        }
+    }
+    //réinitialise le numéro du pixel pour la recoloration
+
+    numPixel = 0;
+    sleep(50);
+
+    //recolore l'image aux couleurs originales
+
+    for (int imgWidth = -getWidth(); imgWidth <= getWidth(); imgWidth++) {
+        sleep(10);
+        for (int imgHeight = -getHeight(); imgHeight <= getHeight(); imgHeight++) {
+
+            setPixel(imgWidth, imgHeight, tabrecoloration[numPixel][0], tabrecoloration[numPixel][1], tabrecoloration[numPixel][2]);
+            numPixel = numPixel + 1;
+
+        }
+    }
+}
